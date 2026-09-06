@@ -1,0 +1,52 @@
+# --- 절대 커밋하지 않는 것 -----------------------------------------
+# 모델 가중치
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+
+# 데이터셋 · 촬영본
+dataset/
+datasets/
+data/
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.mp4
+*.mov
+*.avi
+*.npz
+
+# 학습 산출물
+runs/
+wandb/
+*.csv
+
+# 비밀정보
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+credentials.*
+*_token*
+roboflow.json
+
+# --- 일반 -----------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.ipynb_checkpoints/

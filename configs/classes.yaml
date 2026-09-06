@@ -1,0 +1,79 @@
+# =============================================================================
+#  판정 클래스 · 조치 대응표
+# =============================================================================
+#  ※ 이 파일의 값은 프로젝트 당시 설정을 그대로 복원한 것이 아니다.
+#     당시의 최종 통합 노트북이 회수되지 않아 정확한 문자열을 확인할 수 없다.
+#     아래 class_names 는 기획서·발표자료의 표기를 따른 '예시값'이며,
+#     팀 노트북(p&p_pinkybot_code.ipynb, 이전 세대)에는 robot_fix / human_fix 로
+#     밑줄이 들어간 표기가 남아 있다. 확인 불가 항목이므로 설정으로 분리했다.
+#     실제 모델을 학습해 쓸 때는 data.yaml 의 names 와 반드시 일치시켜야 한다.
+# =============================================================================
+
+schema_version: 1
+
+# 모델이 출력하는 클래스 이름 (예시값 — 학습 데이터의 names 와 일치시킬 것)
+class_names:
+  - normal
+  - robotfix
+  - humanfix
+
+# 클래스 → 조치 대응표.
+# 경로는 신뢰도 임계값으로 정하지 않는다. 사전에 정의해 승인된 대응표를 조회한다.
+# (설계 근거: 이상 유형별 대응표로 조치를 정하는 OCAP / 편차 등급 구조)
+action_table:
+
+  normal:
+    action: VERIFY_COMPLETION
+    destination: ZONE2
+    description: >-
+      허용기준 내로 확인된 상태. 이 시스템에서는 출발 지점의 판정 대상으로
+      제시하지 않고, 교체 스테이션에서 '교체 완료'를 확인하는 신호로만 사용한다.
+    requires_human: false
+
+  robotfix:
+    action: ROBOT_REPLACE
+    destination: ZONE2
+    description: >-
+      추가 품질 판단 없이 표준 절차대로 처리 가능한 상태.
+      로봇 교체 스테이션으로 이송해 매니퓰레이터가 교체한다.
+    requires_human: false
+
+  humanfix:
+    action: HUMAN_REVIEW
+    destination: ZONE3
+    description: >-
+      조치 한계를 넘어 자격자의 판단이 필요한 상태.
+      사람 QC 스테이션까지 안전하게 이송·인계하고, 판정은 사람이 한다.
+    requires_human: true
+
+# 대응표에 없거나 확신할 수 없을 때의 처리.
+# 자동으로 처분하지 않고 사람 쪽으로 보수적으로 넘긴다.
+fallback:
+  action: HUMAN_REVIEW
+  destination: ZONE3
+  requires_human: true
+  reason: 대응표에 정의되지 않았거나 신뢰도가 기준에 미달한 판정
+
+# 판정 파라미터
+detection:
+  # 0.70 은 팀 노트북(p&p_pinkybot_code.ipynb, 이전 세대)의 YOLO_CONF 값이다.
+  # 최종본의 값은 확인 불가.
+  min_confidence: 0.70
+  # 단일 프레임 판정은 흔들림에 약하므로 연속 프레임 다수결을 쓴다.
+  # ※ 당시 코드에 다수결이 구현되어 있었다는 근거는 없다. 이번 재구성에서 추가한 설계다.
+  vote_window: 5
+  vote_required: 3
+
+# ArUco 정차 조건 (사용자 확정값)
+docking:
+  markers:
+    ZONE2: 0          # robotfix 스테이션
+    ZONE3: 2          # humanfix 스테이션
+  stop_distance_m: 0.30   # 마커까지의 거리 z 가 이 값 이하일 때 정차
+  marker_size_m: 0.035
+
+# 완료 검증
+verification:
+  # 교체 완료를 '신호를 받았다'가 아니라 'normal 을 다시 검출했다'로 판정한다.
+  expect_class: normal
+  timeout_sec: 120
