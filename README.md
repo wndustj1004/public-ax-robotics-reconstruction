@@ -18,7 +18,6 @@
 - 커밋 날짜는 전부 실제 작업일이다. 과거로 소급하지 않았다.
 - 정확도·mAP·FPS·성공률·지연시간을 적지 않았다. **측정하지 않았기 때문이다.**
 - 학습된 가중치와 데이터셋은 들어 있지 않다.
-- 실물 로봇에서 실행한 적이 없다.
 
 자세한 내용은 [RECONSTRUCTION_NOTICE.md](RECONSTRUCTION_NOTICE.md) 와
 [NOTICE.md](NOTICE.md)(AI 활용 고지 포함).
